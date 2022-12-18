@@ -27,7 +27,7 @@ class Users(str, Enum):
     
 @bot.slash_command(description="Lists connected players")
 # @commands.has_role(733408652077170785) #Optional, you can specify an admin role ID here to only allow certain roles to perform the command
-async def players(inter: disnake.ApplicationCommandInteraction, user: Users):
+async def players(inter: disnake.ApplicationCommandInteraction):
     with Client('<Server IP>', <RCON Port>, passwd='<AdminPassword>') as client:
         response = client.run('listplayers')
         await inter.response.send_message(f'{response}')
