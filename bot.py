@@ -13,12 +13,14 @@ async def on_ready():
     print(f"Logged in as {bot.user}.")
 
 
-@bot.slash_command(description="Blep (also used as ping)")
+@bot.slash_command(description="Sends bot latency")
 async def ping(inter: disnake.ApplicationCommandInteraction):
     await inter.response.send_message(f'{round(bot.latency * 1000)}ms')
 
-
-class Users(str, Enum):
+    
+#In this context, 'Player1' will show up as an option in discord when the command is written
+#Replace 'SteamID' with the respective players' SteamID
+class Users(str, Enum): 
     Player1 = 'SteamID1'
     Player2 = 'SteamID2'
     Player3 = 'SteamID3'
