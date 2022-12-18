@@ -1,5 +1,5 @@
 # discord-arkplayerkicker
-Kicks players from an ARK server
+Kicks players from an ARK server with a discord bot (Slash commands)
 
 Very niche use, could be used for admin purposes (?) currently use it to kick a player who is very prone to crashes of their game client, if a client crashes, the player is still connected to the server, giving them the "Connection Failure: There is already a player with this account connected!" error.
 
