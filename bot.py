@@ -3,46 +3,61 @@ from rcon.source import Client
 from disnake.ext import commands
 from enum import Enum
 
+class Users(str, Enum): 
+    PlayerUsername = '112233445566' # Replace with each username, and the numbers with their SteamID
+    PlayerUsername2 = '112233445567'
+    PlayerUsername3 = '112233445568'
 
-bot = commands.Bot(command_prefix=disnake.ext.commands.when_mentioned,test_guilds=[<your-guild-ID-here>])
+# Server configurations
+servers = [
+    {'Name': 'Server1', 'IP': '127.0.0.1', 'RCONPort': 32330, 'Password': 'AdminPassword1'}#, # If you have multiple servers, uncomment and expand as needed
+    #{'Name': 'Server2', 'IP': '127.0.0.1', 'RCONPort': 32331, 'Password': 'AdminPassword2'} 
+]
 
+Token = 'BotToken' # Replace with the Discord Bot Token from the Developer Portal
 
+bot = commands.InteractionBot()
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}.")
 
 
-@bot.slash_command(description="Sends bot latency")
-async def ping(inter: disnake.ApplicationCommandInteraction):
-    await inter.response.send_message(f'{round(bot.latency * 1000)}ms')
-
+@bot.slash_command(description="Lists connected ARK players")
+async def players(inter):
+    all_responses = []
+    for server in servers:
+        with Client(server['IP'], server['RCONPort'], server['Password']) as client:
+            try:
+                response = client.run('listplayers')
+                all_responses.append(f'{server["Name"]}:\n{response}')
+            except Exception as Err:
+                all_responses.append(f'Error in {server["Name"]}:\n{Err}')
     
-#In this context, 'Player1' will show up as an option in discord when the command is written
-#Replace 'SteamID' with the respective players' SteamID
-class Users(str, Enum): 
-    Player1 = 'SteamID1'
-    Player2 = 'SteamID2'
-    Player3 = 'SteamID3'
-    
-@bot.slash_command(description="Lists connected players")
-# @commands.has_role(733408652077170785) #Optional, you can specify an admin role ID here to only allow certain roles to perform the command
-async def players(inter: disnake.ApplicationCommandInteraction):
-    with Client('<Server IP>', <RCON Port>, passwd='<AdminPassword>') as client:
-        response = client.run('listplayers')
-        await inter.response.send_message(f'{response}')
+    await inter.response.send_message('\n\n'.join(all_responses))
 
-@bot.slash_command(description="Kicks a player from the ARK Server")
-# @commands.has_role(733408652077170785) #Optional, you can specify an admin role ID here to only allow certain roles to perform the command
-async def kickplayer(inter: disnake.ApplicationCommandInteraction, user: Users):
-    with Client('<Server IP>', <RCON Port>, passwd='<AdminPassword>') as client:
-        response = client.run(f'kickplayer {user}')
-        await inter.response.send_message(f'Kicked player')
+@bot.slash_command(description="Kicks an ARK player from the server")
+async def kickplayer(inter, user: Users):
+    all_responses = []
+    for server in servers:
+        with Client(server['IP'], server['RCONPort'], server['Password']) as client:
+            try:
+                client.run(f'kickplayer {user}')
+                all_responses.append(f'Kicked player from {server["Name"]}')
+            except Exception as Err:
+                all_responses.append(f'Error in {server["Name"]}:\n{Err}')
+    
+    await inter.response.send_message('\n\n'.join(all_responses))
+
 
 @kickplayer.error
 async def kickplayer_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         await ctx.send("You do not have the required role and cannot use this command.")
 
+@players.error
+async def players_error(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("You do not have the required role and cannot use this command.")
 
-bot.run("<Bot-Token>")
+bot.run(Token)
