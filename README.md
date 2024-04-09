@@ -11,3 +11,6 @@ Very niche use, could be used for admin purposes (?) currently use it to kick a 
 `python main.py`
 
 If you need help, open an issue, happy to help with configuration!
+
+# TO-DO
+- Player authentication/linking - so only linked players can kick themselves and not others
